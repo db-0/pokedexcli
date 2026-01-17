@@ -8,19 +8,29 @@ import (
 )
 
 type locationAreas struct {
-	Count    int `json:"count"`
-	Next     any `json:"next"`
-	Previous any `json:"previous"`
+	Count    int     `json:"count"`
+	Next     *string `json:"next"`
+	Previous *string `json:"previous"`
 	Results  []struct {
 		Name string `json:"name"`
 		URL  string `json:"url"`
 	} `json:"results"`
 }
 
-func GetAreas(apiURL string) (locationAreas, error) {
-	res, err := http.Get(apiURL)
+func (c *Client) GetAreas(pageURL *string) (locationAreas, error) {
+	url := baseURL + "/location-area"
+	if pageURL != nil {
+		url = *pageURL
+	}
+
+	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return locationAreas{}, fmt.Errorf("Unable to connect to PokeAPI: %w", err)
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return locationAreas{}, fmt.Errorf("Error obtaining PokeAPI response: %w", err)
 	}
 
 	defer res.Body.Close()

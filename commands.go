@@ -1,9 +1,9 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
-	"github.com/db-0/pokedexcli/internal/pokeapi"
 )
 
 func commandExit(cfg *config) error {
@@ -13,38 +13,25 @@ func commandExit(cfg *config) error {
 }
 
 func commandHelp(cfg *config) error {
+	fmt.Println()
 	fmt.Println("Welcome to the Pokedex!\nUsage:")
 	fmt.Println()
 
 	for _, command := range getCommands() {
 		fmt.Printf("%s: %s\n", command.name, command.description)
 	}
+	fmt.Println()
 	return nil
 }
 
 func commandMap(cfg *config) error {
-	URL := "https://pokeapi.co/api/v2/location-area/"
-	if c.Next != "" {
-		URL = c.Next
-	}
-
-	areas, err := pokeapi.GetAreas(URL)
+	areas, err := cfg.pokeapiClient.GetAreas(cfg.nextLocURL)
 	if err != nil {
-		return fmt.Errorf("Error getting areas from PokeAPI: %w", err)
+		return fmt.Errorf("Error getting area list from PokeAPI: %w", err)
 	}
 
-	// Next / Previous come through as null values and need to be cast as strings for
-	// the logic to work properly
-	if areas.Next != nil {
-		c.Next = areas.Next.(string)
-	} else {
-		c.Next = ""
-	}
-	if areas.Previous != nil {
-		c.Previous = areas.Previous.(string)
-	} else {
-		c.Previous = ""
-	}
+	cfg.nextLocURL = areas.Next
+	cfg.prevLocURL = areas.Previous
 
 	// Display batch of Location Areas returned from the API
 	for _, a := range areas.Results {
@@ -54,29 +41,18 @@ func commandMap(cfg *config) error {
 	return nil
 }
 
-func commandMapb(c *config) error {
-	if c.Previous == "" {
-		fmt.Println("You're on the first page!")
-		return nil
+func commandMapb(cfg *config) error {
+	if cfg.prevLocURL == nil {
+		return errors.New("You are on the first page")
 	}
 
-	areas, err := pokeapi.GetAreas(c.Previous)
+	areas, err := cfg.pokeapiClient.GetAreas(cfg.prevLocURL)
 	if err != nil {
 		return fmt.Errorf("Error getting areas from PokeAPI: %w", err)
 	}
 
-	// Next / Previous come through as null values and need to be cast as strings for
-	// the logic to work properly
-	if areas.Next != nil {
-		c.Next = areas.Next.(string)
-	} else {
-		c.Next = ""
-	}
-	if areas.Previous != nil {
-		c.Previous = areas.Previous.(string)
-	} else {
-		c.Previous = ""
-	}
+	cfg.nextLocURL = areas.Next
+	cfg.prevLocURL = areas.Previous
 
 	// Display batch of Location Areas returned from the API
 	for _, a := range areas.Results {

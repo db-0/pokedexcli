@@ -2,6 +2,7 @@ package main
 
 import (
 	"time"
+
 	"github.com/db-0/pokedexcli/internal/pokeapi"
 )
 
@@ -11,9 +12,9 @@ func main() {
 
 	// HTTP Client accessible through configuration struct
 	cfg := &config{
-		pokeapiClient: pokeClient
+		pokeapiClient: pokeClient,
 	}
-	
+
 	// Start the REPL loop
 	startRepl(cfg)
 }
