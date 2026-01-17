@@ -10,11 +10,21 @@ import (
 type cliCommand struct {
 	name        string
 	description string
-	callback    func() error
+	callback    func(*config) error
+}
+
+type config struct {
+	Next     string
+	Previous string
 }
 
 func startRepl() {
 	inputReader := bufio.NewScanner(os.Stdin)
+
+	conf := config{
+		Next:     "",
+		Previous: "",
+	}
 
 	// Main REPL loop
 	for {
@@ -31,7 +41,7 @@ func startRepl() {
 		commandInput := input[0]
 
 		if command, exists := getCommands()[commandInput]; exists {
-			err := command.callback()
+			err := command.callback(&conf)
 			if err != nil {
 				fmt.Println(fmt.Errorf("Unable to run command, %v: %w", command.name, err))
 			}
@@ -46,28 +56,22 @@ func cleanInput(text string) []string {
 	return strings.Fields(strings.ToLower(text))
 }
 
-func commandExit() error {
-	fmt.Println("Closing the Pokedex... Goodbye!")
-	os.Exit(0)
-	return fmt.Errorf("Unable to exit the program")
-}
-
-func commandHelp() error {
-	fmt.Println("Welcome to the Pokedex!\nUsage:")
-	fmt.Println()
-
-	for _, command := range getCommands() {
-		fmt.Printf("%s: %s\n", command.name, command.description)
-	}
-	return nil
-}
-
 func getCommands() map[string]cliCommand {
 	return map[string]cliCommand{
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
 			callback:    commandHelp,
+		},
+		"map": {
+			name:        "map",
+			description: "Lists location areas in the Pokemon world, subsequent calls advance through the list",
+			callback:    commandMap,
+		},
+		"mapb": {
+			name:        "mapb",
+			description: "Displays the previous Areas page",
+			callback:    commandMapb,
 		},
 		"exit": {
 			name:        "exit",
