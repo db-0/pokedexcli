@@ -3,17 +3,16 @@ package main
 import (
 	"fmt"
 	"os"
-
 	"github.com/db-0/pokedexcli/internal/pokeapi"
 )
 
-func commandExit(c *config) error {
+func commandExit(cfg *config) error {
 	fmt.Println("Closing the Pokedex... Goodbye!")
 	os.Exit(0)
 	return fmt.Errorf("Unable to exit the program")
 }
 
-func commandHelp(c *config) error {
+func commandHelp(cfg *config) error {
 	fmt.Println("Welcome to the Pokedex!\nUsage:")
 	fmt.Println()
 
@@ -23,7 +22,7 @@ func commandHelp(c *config) error {
 	return nil
 }
 
-func commandMap(c *config) error {
+func commandMap(cfg *config) error {
 	URL := "https://pokeapi.co/api/v2/location-area/"
 	if c.Next != "" {
 		URL = c.Next

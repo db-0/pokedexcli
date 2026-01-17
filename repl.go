@@ -5,7 +5,14 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"github.com/db-0/pokedexcli/internal/pokeapi"
 )
+
+type config struct {
+	pokeapiClient	pokeapi.Client
+	nextLocURL		*string
+	prevLocURL		*string
+}
 
 type cliCommand struct {
 	name        string
@@ -13,18 +20,8 @@ type cliCommand struct {
 	callback    func(*config) error
 }
 
-type config struct {
-	Next     string
-	Previous string
-}
-
-func startRepl() {
+func startRepl(cfg *config) {
 	inputReader := bufio.NewScanner(os.Stdin)
-
-	conf := config{
-		Next:     "",
-		Previous: "",
-	}
 
 	// Main REPL loop
 	for {
@@ -41,7 +38,7 @@ func startRepl() {
 		commandInput := input[0]
 
 		if command, exists := getCommands()[commandInput]; exists {
-			err := command.callback(&conf)
+			err := command.callback(cfg)
 			if err != nil {
 				fmt.Println(fmt.Errorf("Unable to run command, %v: %w", command.name, err))
 			}
