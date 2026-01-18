@@ -5,13 +5,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
 	"github.com/db-0/pokedexcli/internal/pokeapi"
+	"github.com/db-0/pokedexcli/internal/pokecache"
 )
 
 type config struct {
-	pokeapiClient	pokeapi.Client
-	nextLocURL		*string
-	prevLocURL		*string
+	pokeapiClient pokeapi.Client
+	cache         pokecache.Cache
+	nextLocURL    *string
+	prevLocURL    *string
 }
 
 type cliCommand struct {

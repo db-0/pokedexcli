@@ -27,13 +27,13 @@ func commandHelp(cfg *config) error {
 func commandMap(cfg *config) error {
 	areas, err := cfg.pokeapiClient.GetAreas(cfg.nextLocURL)
 	if err != nil {
-		return fmt.Errorf("Error getting area list from PokeAPI: %w", err)
+		return fmt.Errorf("Error getting area list: %w", err)
 	}
 
 	cfg.nextLocURL = areas.Next
 	cfg.prevLocURL = areas.Previous
 
-	// Display batch of Location Areas returned from the API
+	// Display batch of Location Areas returned from the API or cache
 	for _, a := range areas.Results {
 		fmt.Println(a.Name)
 	}
