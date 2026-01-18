@@ -7,12 +7,10 @@ import (
 	"strings"
 
 	"github.com/db-0/pokedexcli/internal/pokeapi"
-	"github.com/db-0/pokedexcli/internal/pokecache"
 )
 
 type config struct {
 	pokeapiClient pokeapi.Client
-	cache         pokecache.Cache
 	nextLocURL    *string
 	prevLocURL    *string
 }
@@ -20,7 +18,7 @@ type config struct {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, string) error
 }
 
 func startRepl(cfg *config) {
@@ -39,11 +37,15 @@ func startRepl(cfg *config) {
 		}
 
 		commandInput := input[0]
+		paramInput := ""
+		if len(input) > 1 {
+			paramInput = input[1]
+		}
 
 		if command, exists := getCommands()[commandInput]; exists {
-			err := command.callback(cfg)
+			err := command.callback(cfg, paramInput)
 			if err != nil {
-				fmt.Println(fmt.Errorf("Unable to run command, %v: %w", command.name, err))
+				fmt.Println(fmt.Errorf("Unable to run command, %v:\n%w", command.name, err))
 			}
 		} else {
 			fmt.Println("Unknown command")
@@ -72,6 +74,11 @@ func getCommands() map[string]cliCommand {
 			name:        "mapb",
 			description: "Displays the previous Areas page",
 			callback:    commandMapb,
+		},
+		"explore": {
+			name:        "explore",
+			description: "Use 'explore <area_name>' to find Pokemon",
+			callback:    commandExplore,
 		},
 		"exit": {
 			name:        "exit",

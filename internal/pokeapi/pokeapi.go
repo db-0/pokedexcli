@@ -17,6 +17,13 @@ type locationAreas struct {
 	} `json:"results"`
 }
 
+type areaPokemon []struct {
+	Pokemon struct {
+		Name	string	`json:"name"`
+		URL		string	`json:"url"`
+	} `json:"pokemon"`
+}
+
 func (c *Client) GetAreas(pageURL *string) (locationAreas, error) {
 	url := baseURL + "/location-area"
 	if pageURL != nil {
@@ -62,4 +69,9 @@ func (c *Client) GetAreas(pageURL *string) (locationAreas, error) {
 	}
 
 	return areas, nil
+}
+
+func (c *Client) GetPokemon(area string) (areaPokemon, error) {
+	url := 
+	var pokemon 
 }
