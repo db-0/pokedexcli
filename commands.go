@@ -72,10 +72,10 @@ func commandExplore(cfg *config, area string) error {
 		return fmt.Errorf("Unable to list Pokemon in %s: %w", area, err)
 	}
 
-	fmt.Println("Exploring %s...", area)
-	fmt.Println("Found Pokemon:")
-	for _, p := range pokemon {
-		fmt.Println(" - %s", p)
+	fmt.Printf("Exploring %s...\n", area)
+	fmt.Printf("Found Pokemon:\n")
+	for _, p := range pokemon.PokemonEncounters {
+		fmt.Printf(" - %s\n", p.Pokemon.Name)
 	}
 
 	return nil

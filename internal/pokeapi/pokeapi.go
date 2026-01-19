@@ -17,11 +17,13 @@ type locationAreas struct {
 	} `json:"results"`
 }
 
-type areaPokemon []struct {
-	Pokemon struct {
-		Name	string	`json:"name"`
-		URL		string	`json:"url"`
-	} `json:"pokemon"`
+type areaPokemon struct {
+	PokemonEncounters []struct {
+		Pokemon struct {
+			Name string `json:"name"`
+			URL  string `json:"url"`
+		} `json:"pokemon"`
+	} `json:"pokemon_encounters"`
 }
 
 func (c *Client) GetAreas(pageURL *string) (locationAreas, error) {
@@ -72,6 +74,45 @@ func (c *Client) GetAreas(pageURL *string) (locationAreas, error) {
 }
 
 func (c *Client) GetPokemon(area string) (areaPokemon, error) {
-	url := 
-	var pokemon 
+	url := baseURL + "/location-area/" + area
+
+	if cacheValue, hit := c.cache.Get(url); hit {
+		// We're going to return early if we get a response from cache
+		var pokemon areaPokemon
+		err := json.Unmarshal(cacheValue, &pokemon)
+		if err != nil {
+			return areaPokemon{}, fmt.Errorf("Error unmarshalling JSON from cache: %w", err)
+		}
+		return pokemon, nil
+	}
+
+	// Only query the API if there are no cache hits
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return areaPokemon{}, fmt.Errorf("Unable to connect to PokeAPI: %w", err)
+	}
+
+	res, err := c.httpClient.Do(req)
+	if err != nil {
+		return areaPokemon{}, fmt.Errorf("Error obtaining PokeAPI response: %w", err)
+	}
+
+	defer res.Body.Close()
+
+	if res.StatusCode > 299 {
+		return areaPokemon{}, fmt.Errorf("Response failed with status code: %d and\nbody: %s\n", res.StatusCode, res.Body)
+	}
+
+	data, err := io.ReadAll(res.Body)
+
+	// Data returned should be stored in the cache
+	c.cache.Add(url, data)
+
+	var pokemon areaPokemon
+	err = json.Unmarshal(data, &pokemon)
+	if err != nil {
+		return areaPokemon{}, fmt.Errorf("Error unmarshalling JSON from API call: %w", err)
+	}
+
+	return pokemon, nil
 }
