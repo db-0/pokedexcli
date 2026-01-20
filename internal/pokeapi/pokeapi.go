@@ -73,7 +73,7 @@ func (c *Client) GetAreas(pageURL *string) (locationAreas, error) {
 	return areas, nil
 }
 
-func (c *Client) GetPokemon(area string) (areaPokemon, error) {
+func (c *Client) ListPokemon(area string) (areaPokemon, error) {
 	url := baseURL + "/location-area/" + area
 
 	if cacheValue, hit := c.cache.Get(url); hit {
@@ -108,11 +108,13 @@ func (c *Client) GetPokemon(area string) (areaPokemon, error) {
 	// Data returned should be stored in the cache
 	c.cache.Add(url, data)
 
-	var pokemon areaPokemon
-	err = json.Unmarshal(data, &pokemon)
+	var pokemonList areaPokemon
+	err = json.Unmarshal(data, &pokemonList)
 	if err != nil {
 		return areaPokemon{}, fmt.Errorf("Error unmarshalling JSON from API call: %w", err)
 	}
 
-	return pokemon, nil
+	return pokemonList, nil
 }
+
+func (c *Client) CatchPokemon(pokemon string)

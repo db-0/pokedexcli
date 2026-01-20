@@ -67,7 +67,7 @@ func commandExplore(cfg *config, area string) error {
 		return errors.New("Use 'explore <area_name>' to explore an area!")
 	}
 
-	pokemon, err := cfg.pokeapiClient.GetPokemon(area)
+	pokemon, err := cfg.pokeapiClient.ListPokemon(area)
 	if err != nil {
 		return fmt.Errorf("Unable to list Pokemon in %s: %w", area, err)
 	}
@@ -79,4 +79,12 @@ func commandExplore(cfg *config, area string) error {
 	}
 
 	return nil
+}
+
+func commandCatch(cfg *config, mon string) error {
+	if mon == "" {
+		return errors.New("Use 'catch <pokemon>' to catch a pokemon!")
+	}
+
+	pokemon, err := cfg.
 }
