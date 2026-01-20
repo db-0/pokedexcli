@@ -3,7 +3,9 @@ package main
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func commandExit(cfg *config, arg string) error {
@@ -86,5 +88,27 @@ func commandCatch(cfg *config, mon string) error {
 		return errors.New("Use 'catch <pokemon>' to catch a pokemon!")
 	}
 
-	pokemon, err := cfg.
+	pokemon, err := cfg.pokeapiClient.CatchPokemon(mon)
+	if err != nil {
+		return fmt.Errorf("Error catching Pokemon: %w", err)
+	}
+
+	// Initialize random seed
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	fmt.Printf("Throwing a Pokeball at %s...\n", pokemon.Name)
+
+	// Chance of catching is based on the Pokemon's base experience
+	// Exp: 10 (100%) to Exp: 400 (0% - legendary monsters cap at 350)
+	catchChance := 100.0 - ((float32(pokemon.BaseExperience) - 10.0) / 400.0 * 100.0)
+	roll := r.Float32() * 100.0
+	isCaught := roll < catchChance
+
+	if isCaught {
+		cfg.userPokemon[pokemon.Name] = pokemon
+		fmt.Printf("You caught %s!\n", pokemon.Name)
+	} else {
+		fmt.Printf("Darn it! %s got away...\n", pokemon.Name)
+	}
+
+	return nil
 }
